@@ -1,3 +1,4 @@
+// go-first-fl-codestyle/main.go
 package main
 
 import (
@@ -6,8 +7,8 @@ import (
 	"strings"
 )
 
-// Функция возвращает текст о том, сколько урона персонаж
-func attack(name, class string) string {
+// Attack возвращает текст о том, сколько урона персонаж нанес противнику.
+func Attack(name, class string) string {
 	if class == "warrior" {
 		return fmt.Sprintf("%s нанес урон противнику равный %d.", name, 5+randint(3, 5))
 	}
@@ -22,9 +23,8 @@ func attack(name, class string) string {
 	return "неизвестный класс персонажа"
 }
 
-// Функция возвращает текст о том, сколько урона персонаж смог заблокировать.
-// Количество блокируемого урона зависит от класса персонажа:
-func defence(char_name, char_class string) string {
+// Defence возвращает текст о том, сколько урона персонаж смог заблокировать.
+func Defence(char_name, char_class string) string {
 	switch char_class {
 	case "warrior":
 		return fmt.Sprintf("%s блокировал %d урона.", char_name, 10+randint(5, 10))
@@ -37,9 +37,8 @@ func defence(char_name, char_class string) string {
 	}
 }
 
-// Функция возвращает строку с описанием специального умения,
-// которое применяется персонажем в зависимости от его класса.
-func special(name, class string) string {
+// Special возвращает строку с описанием специального умения персонажа.
+func Special(name, class string) string {
 	switch class {
 	case "warrior":
 		return fmt.Sprintf("%s применил специальное умение `Выносливость %d`", name, 80+25)
@@ -52,8 +51,8 @@ func special(name, class string) string {
 	}
 }
 
-// Функция startTraining запускает тренировку персонажа.
-func startTraining(name, class string) string {
+// StartTraining запускает тренировку персонажа и обрабатывает команды пользователя.
+func StartTraining(name, class string) string {
 	// Сообщение о классе персонажа
 	switch class {
 	case "warrior":
@@ -73,29 +72,36 @@ func startTraining(name, class string) string {
 	var cmd string
 	for cmd != "skip" {
 		fmt.Print("Введи команду: ")
-		fmt.Scanf("%s\n", &cmd)
+		if _, err := fmt.Scanf("%s\n", &cmd); err != nil {
+			fmt.Println("Ошибка ввода команды:", err)
+			continue
+		}
 
 		switch cmd {
 		case "attack":
-			fmt.Println(attack(name, class))
+			fmt.Println(Attack(name, class))
 		case "defence":
-			fmt.Println(defence(name, class))
+			fmt.Println(Defence(name, class))
 		case "special":
-			fmt.Println(special(name, class))
+			fmt.Println(Special(name, class))
 		}
 	}
 
 	return "тренировка окончена"
 }
 
-// Функция choiseClass позволяет игроку выбрать класс персонажа
-func choiseClass() string {
+// ChoiseClass позволяет игроку выбрать класс персонажа и возвращает выбранный класс.
+func ChoiseClass() string {
 	var approval string
 	var class string
 
 	for approval != "y" {
 		fmt.Print("Введи название персонажа, за которого хочешь играть: Воитель — warrior, Маг — mage, Лекарь — healer: ")
-		fmt.Scanf("%s\n", &class)
+
+		if _, err := fmt.Scanf("%s\n", &class); err != nil {
+			fmt.Println("Ошибка ввода класса:", err)
+			continue
+		}
 
 		switch class {
 		case "warrior":
@@ -107,7 +113,12 @@ func choiseClass() string {
 		}
 
 		fmt.Print("Нажми (Y), чтобы подтвердить выбор, или любую другую кнопку, чтобы выбрать другого персонажа: ")
-		fmt.Scanf("%s\n", &approval)
+
+		if _, err := fmt.Scanf("%s\n", &approval); err != nil {
+			fmt.Println("Ошибка ввода:", err)
+			continue
+		}
+
 		approval = strings.ToLower(approval)
 	}
 
@@ -120,16 +131,19 @@ func main() {
 
 	var name string
 	fmt.Print("...назови себя: ")
-	fmt.Scanf("%s\n", &name)
+	if _, err := fmt.Scanf("%s\n", &name); err != nil {
+		fmt.Println("Ошибка ввода класса:", err)
+		return
+	}
 
 	fmt.Printf("Здравствуй, %s\n", name)
 	fmt.Println("Сейчас твоя выносливость — 80, атака — 5 и защита — 10.")
 	fmt.Println("Ты можешь выбрать один из трёх путей силы:")
 	fmt.Println("Воитель, Маг, Лекарь")
 
-	class := choiseClass()
+	class := ChoiseClass()
 
-	fmt.Println(startTraining(name, class))
+	fmt.Println(StartTraining(name, class))
 }
 
 func randint(min, max int) int {
